@@ -1,0 +1,5 @@
+http://d.yimg.com/autoc.finance.yahoo.com/autoc?query=inst&region=1&lang=en&callback=YAHOO.Finance.SymbolSuggest.ssCallback
+
+Change text after "query=" to search for text
+
+Result is JSON with up to 10 mathing values

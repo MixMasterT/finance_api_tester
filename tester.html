@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+
+        let yahooFails = 0;
+        let googleFails = 0;
+
+        const yahooQuery = (sym) => {
+          let qString = `https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22${sym}%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback`;
+
+          let price = "";
+
+          $.ajax({
+            url: qString,
+            dataType: 'json'
+          }).then((res) => {
+            console.log("From Yahoo: ");
+            console.log(res.query.results.quote.Symbol);
+            console.log(res.query.results.quote.Bid);
+          })
+            .fail((err) => {
+              yahooFails++;
+            console.log(`Yahoo query failed at ${new Date().toLocaleString()}`);
+            console.log(err);
+          })
+        }
+
+        const googleQuery = (sym) => {
+          let qString = `https://www.google.com/finance/info?q=NASDAQ%3a${sym}`;
+
+          let price = "";
+
+          $.ajax({
+            url: qString,
+            dataType: 'jsonp'
+          }).then((res) => {
+            console.log("From Google: ");
+            console.log(res[0].t);
+            console.log(res[0].el_cur);
+          }).fail((err) => {
+            googleFails++;
+            console.log(`Google query failed at ${new Date().toLocaleString()}`);
+          })
+        }
+
+        let count = 0;
+
+        const tickers = ['AAPL', 'TSLA', 'BUD', 'GOOG', 'STWD'];
+
+        const runQueries = (i) => {
+          const sym = tickers[i % (tickers.length - 1)];
+          yahooQuery(sym);
+          googleQuery(sym);
+        }
+
+        console.log("testing...");
+        const intervalId = setInterval(() => {
+          runQueries(count);
+          count++;
+          if (count == 101) {
+            const timeoutId = setTimeout(() => {
+              console.log("Yahoo fails: ", yahooFails);
+              console.log("Google fails: ", googleFails);
+              clearTimeout(timeoutId);
+            }, 5000);
+            clearInterval(intervalId); }
+        }, 10000);
+      });
+    </script>
+    <title></title>
+  </head>
+  <body>
+
+  </body>
+</html>
